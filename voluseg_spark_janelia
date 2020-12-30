@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+# set up
+import os
+import sys
+from subprocess import run, PIPE
+
+if len(sys.argv) < 3:
+    sys.exit('Usage: voluseg_spark_janelia [number-of-nodes] [output-directory]')
+
+n_workers = sys.argv[1]
+dir_output = sys.argv[2]
+
+#%%
+
+# define spark commands
+spark_submit = '/usr/local/spark-current/bin/spark-submit'
+prepro_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'voluseg_submit.py')
+
+# launch spark nodes and get deails of master
+launch = run(['spark-janelia-lsf', 'launch', '-n', n_workers, '--silentlaunch'], stdout=PIPE)
+url_master = launch.stdout.decode().split('MASTER=')[1].split()[0]
+name_master = url_master.split('//')[1].split(':')[0]
+
+# run spark
+run([spark_submit, prepro_script, n_workers, dir_output, url_master])
+
+# get all spark job ids
+bjobs = run(['bjobs'], stdout=PIPE)
+bjobs_stdout_lines = bjobs.stdout.decode().split('\n')
+id_master = [line.split()[0] for line in bjobs_stdout_lines if name_master in line]
+job_ids = [line.split()[0] for line in bjobs_stdout_lines if id_master[0] in line]
+
+# terminate all spark jobs
+assert(len(id_master)==1)
+print(name_master, id_master[0], job_ids)
+for ji in job_ids:
+    run(['bkill', ji])
