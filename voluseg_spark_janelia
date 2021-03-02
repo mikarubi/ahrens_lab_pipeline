@@ -8,7 +8,7 @@ import datetime
 from subprocess import run, PIPE
 
 if len(sys.argv) < 3:
-    sys.exit('Usage: voluseg_spark_janelia [number-of-nodes] [output-directory]')
+    sys.exit('Usage: voluseg_spark_janelia [number-of-workers] [output-directory]')
 
 n_workers = sys.argv[1]
 dir_output = sys.argv[2]
@@ -23,12 +23,15 @@ spark_submit = '/usr/local/spark-current/bin/spark-submit'
 prepro_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'voluseg_submit.py')
 
 # get job name
-name_job = int(datetime.datetime.now().timestamp())
-name_master = 'master%d'%(name_job)
-name_workers = 'worker%d[1-%s]'%(name_job,n_workers)
+timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+name_user = os.getenv('USER')
+name_job = 'voluseg_%s_%s'%(name_user, timestamp)
+
+name_master = 'master_%d'%(name_job)
+name_workers = 'worker_%d[1-%s]'%(name_job,n_workers)
 
 # launch master
-launch_master = run(['bsub','-J',name_master,'-n1',spark_class,deploy_master])
+launch_master = run(['bsub','-W16:00','-J',name_master,'-n1',spark_class,deploy_master])
 if launch_master.returncode:
     sys.exit('Master was not launched.')
 
@@ -44,12 +47,16 @@ while 1:
         print('Waiting for master.')
 
 # launch workers
-launch_workers = run(['bsub','-J',name_workers,'-n5',spark_class,deploy_workers,url_master])
+launch_workers = run(['bsub','-W16:00','-J',name_workers,'-n5',spark_class,deploy_workers,url_master])
+if launch_workers.returncode:
+    run(['bkill','-J',name_master])
+    sys.exit('Workers were not launched.')
+
 while 1:
     time.sleep(5)
     worker_status = run(['bjobs','-J',name_workers], stdout=PIPE)
     # if any workers running
-    if any([li.split()[2]=='RUN' for li in worker_status.stdout.decode().split('\n')[1:-1]]):
+    if all([li.split()[2]=='RUN' for li in worker_status.stdout.decode().split('\n')[1:-1]]):
         break
     else:
         print('Waiting for workers.')
