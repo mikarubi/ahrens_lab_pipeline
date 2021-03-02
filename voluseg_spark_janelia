@@ -3,6 +3,7 @@
 # set up
 import os
 import sys
+import time
 import datetime
 from subprocess import run, PIPE
 
@@ -33,15 +34,27 @@ if launch_master.returncode:
 
 # get all spark job ids
 while 1:
+    time.sleep(5)
     bpeek = run(['bpeek','-J',name_master], stdout=PIPE)
+    # if master launched
     if 'ALIVE' in bpeek.stdout.decode():
         url_master = 'spark://'+bpeek.stdout.decode().split('spark://')[1].split()[0]
         break
+    else:
+        print('Waiting for master.')
 
 # launch workers
 launch_workers = run(['bsub','-J',name_workers,'-n5',spark_class,deploy_workers,url_master])
+while 1:
+    time.sleep(5)
+    worker_status = run(['bjobs','-J',name_workers], stdout=PIPE)
+    # if any workers running
+    if any([li.split()[2]=='RUN' for li in worker_status.stdout.decode().split('\n')[1:-1]]):
+        break
+    else:
+        print('Waiting for workers.')
 
-# run spark
+# run spark-submit with prepro_script
 run([spark_submit, prepro_script, n_workers, dir_output, url_master])
 
 # terminate jobs
