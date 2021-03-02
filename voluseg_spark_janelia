@@ -15,11 +15,17 @@ dir_output = sys.argv[2]
 
 #%%
 
+# define environment worker variables
+lsb_jobid = os.getenv('LSB_JOBID')
+lsb_jobindex = os.getenv('LSB_JOBINDEX')
+os.environ['SPARK_WORKER_DIR'] = '/scratch/$USER/spark-%s_%s'%(lsb_jobid,lsb_jobindex)
+os.environ['SPARK_LOCAL_DIRS'] = '/scratch/$USER/spark-%s_%s'%(lsb_jobid,lsb_jobindex)
+
 # define spark commands
 spark_class = '/misc/local/spark-versions/spark-3.0.1/bin/spark-class'
 deploy_master = 'org.apache.spark.deploy.master.Master'
 deploy_workers = 'org.apache.spark.deploy.worker.Worker'
-spark_submit = '/usr/local/spark-current/bin/spark-submit'
+spark_submit = '/misc/local/spark-3.0.1/bin/spark-submit'
 prepro_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'voluseg_submit.py')
 
 # get job name
@@ -27,8 +33,8 @@ timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 name_user = os.getenv('USER')
 name_job = 'voluseg_%s_%s'%(name_user, timestamp)
 
-name_master = 'master_%d'%(name_job)
-name_workers = 'worker_%d[1-%s]'%(name_job,n_workers)
+name_master = 'master_%s'%(name_job)
+name_workers = 'worker_%s[1-%s]'%(name_job,n_workers)
 
 # launch master
 launch_master = run(['bsub','-W16:00','-J',name_master,'-n1',spark_class,deploy_master])
