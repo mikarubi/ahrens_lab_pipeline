@@ -3,6 +3,7 @@
 # set up
 import os
 import sys
+import datetime
 from subprocess import run, PIPE
 
 if len(sys.argv) < 3:
@@ -14,25 +15,35 @@ dir_output = sys.argv[2]
 #%%
 
 # define spark commands
+spark_class = '/misc/local/spark-versions/spark-3.0.1/bin/spark-class'
+deploy_master = 'org.apache.spark.deploy.master.Master'
+deploy_workers = 'org.apache.spark.deploy.worker.Worker'
 spark_submit = '/usr/local/spark-current/bin/spark-submit'
 prepro_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'voluseg_submit.py')
 
-# launch spark nodes and get deails of master
-launch = run(['spark-janelia-lsf', 'launch', '-n', n_workers, '--silentlaunch'], stdout=PIPE)
-url_master = launch.stdout.decode().split('MASTER=')[1].split()[0]
-name_master = url_master.split('//')[1].split(':')[0]
+# get job name
+name_job = int(datetime.datetime.now().timestamp())
+name_master = 'master%d'%(name_job)
+name_workers = 'worker%d[1-%s]'%(name_job,n_workers)
+
+# launch master
+launch_master = run(['bsub','-J',name_master,'-n1',spark_class,deploy_master])
+if launch_master.returncode:
+    sys.exit('Master was not launched.')
+
+# get all spark job ids
+while 1:
+    bpeek = run(['bpeek','-J',name_master], stdout=PIPE)
+    if 'ALIVE' in bpeek.stdout.decode():
+        url_master = 'spark://'+bpeek.stdout.decode().split('spark://')[1].split()[0]
+        break
+
+# launch workers
+launch_workers = run(['bsub','-J',name_workers,'-n5',spark_class,deploy_workers,url_master])
 
 # run spark
 run([spark_submit, prepro_script, n_workers, dir_output, url_master])
 
-# get all spark job ids
-bjobs = run(['bjobs'], stdout=PIPE)
-bjobs_stdout_lines = bjobs.stdout.decode().split('\n')
-id_master = [line.split()[0] for line in bjobs_stdout_lines if name_master in line]
-job_ids = [line.split()[0] for line in bjobs_stdout_lines if id_master[0] in line]
-
-# terminate all spark jobs
-assert(len(id_master)==1)
-print(name_master, id_master[0], job_ids)
-for ji in job_ids:
-    run(['bkill', ji])
+# terminate jobs
+run(['bkill','-J',name_workers])
+run(['bkill','-J',name_master])
