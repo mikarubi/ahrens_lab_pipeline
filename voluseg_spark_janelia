@@ -47,3 +47,4 @@ run([spark_submit, prepro_script, n_workers, dir_output, url_master])
 # terminate jobs
 run(['bkill','-J',name_workers])
 run(['bkill','-J',name_master])
+
