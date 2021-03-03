@@ -16,10 +16,11 @@ dir_output = sys.argv[2]
 #%%
 
 # define environment worker variables
+name_user = os.getenv('USER')
 lsb_jobid = os.getenv('LSB_JOBID')
 lsb_jobindex = os.getenv('LSB_JOBINDEX')
-os.environ['SPARK_WORKER_DIR'] = '/scratch/$USER/spark-%s_%s'%(lsb_jobid,lsb_jobindex)
-os.environ['SPARK_LOCAL_DIRS'] = '/scratch/$USER/spark-%s_%s'%(lsb_jobid,lsb_jobindex)
+os.environ['SPARK_WORKER_DIR'] = '/scratch/%s/spark-%s_%s'%(name_user,lsb_jobid,lsb_jobindex)
+os.environ['SPARK_LOCAL_DIRS'] = '/scratch/%s/spark-%s_%s'%(name_user,lsb_jobid,lsb_jobindex)
 
 # define spark commands
 spark_class = '/misc/local/spark-versions/spark-3.0.1/bin/spark-class'
@@ -30,7 +31,6 @@ prepro_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'voluse
 
 # get job name
 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-name_user = os.getenv('USER')
 name_job = 'voluseg_%s_%s'%(name_user, timestamp)
 
 name_master = 'master_%s'%(name_job)
