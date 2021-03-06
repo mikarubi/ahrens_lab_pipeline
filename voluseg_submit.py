@@ -7,37 +7,21 @@ import time
 import pprint
 import voluseg
 
-if len(sys.argv) < 4:
-    sys.exit('Usage: voluseg_submit.py [number-of-nodes] [output-directory] [master-url]')
+if len(sys.argv) < 2:
+    sys.exit('Usage: voluseg_submit.py [output-directory]')
 
-n_workers = sys.argv[1]
-dir_output = sys.argv[2]
-url_master = sys.argv[3]
+dir_output = sys.argv[1]
 file_output = os.path.join(dir_output, 'prepro.output')
 
 #%%
 
-# import the required classes
+# Update the initial configuration
 from pyspark.sql.session import SparkSession
 spark = SparkSession.builder.getOrCreate()
 
-# Update the default configurations
-conf = spark.sparkContext._conf.setAll([
-        ('spark.master', url_master),
-        # ('spark.default.parallelism', str(int(n_workers) * 100)),
-        # # timeouts and buffers
-        # ('spark.rpc.askTimeout', '300s'),
-        # ('spark.storage.blockManagerHeartBeatMs', '30000'),
-        # ('spark.rpc.retry.wait', '30s'),
-        # ('spark.kryoserializer.buffer.max', '1024m'),
-        # ('spark.core.connection.ack.wait.timeout', '600s'),
-        # memory and core settings
-        ('spark.driver.maxResultSize', '0'),
-        ('spark.python.worker.memory', '3g'),
-        ('spark.driver.memory', '140g'),
-        ('spark.executor.memory', '50g'),
-        ('spark.executor.cores', '5')
-        ])
+conf = spark.sparkContext._conf.getAll()
+conf.append(('spark.default.parallelism', 100000)) # a very large number
+conf = spark.sparkContext._conf.setAll(conf)
 
 # Create a new spark Session
 spark.sparkContext.stop()

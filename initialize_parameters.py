@@ -5,9 +5,8 @@ import voluseg
 
 
 ### set these parameters ###
-dir_data = 'fish1-1s2s17s_20190125_160126'
-dir_input = os.path.join('/nrs/ahrens/EnYang/whole brain/20190125/', dir_data)
-dir_output = os.path.join('/groups/ahrens/ahrenslab/mika/', dir_data)
+dir_input = '/nrs/ahrens/EnYang/Data_dm11/light_sheet/whole_brain/20190121/fish1-gain_20190121_191737'
+dir_output = '/groups/ahrens/ahrenslab/mika/en/testfish'
 channel_file = os.path.join(dir_input,'ch0.xml')
 stack_file = os.path.join(dir_input,'Stack_frequency.txt')
 ### end set these parameters ###
