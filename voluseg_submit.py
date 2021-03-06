@@ -24,7 +24,20 @@ spark = SparkSession.builder.getOrCreate()
 # Update the default configurations
 conf = spark.sparkContext._conf.setAll([
         ('spark.master', url_master),
-        ('spark.default.parallelism', str(int(n_workers) * 50))])
+        ('spark.default.parallelism', str(int(n_workers) * 50)),
+        # timeouts and buffers
+        ('spark.rpc.askTimeout', '300s'),
+        ('spark.storage.blockManagerHeartBeatMs', '30000'),
+        ('spark.rpc.retry.wait', '30s'),
+        ('spark.kryoserializer.buffer.max', '1024m'),
+        ('spark.core.connection.ack.wait.timeout', '600s'),
+        # memory and core settings
+        ('spark.driver.maxResultSize', '0')
+        ('spark.python.worker.memory', '3g')
+        ('spark.python.driver.memory', '140g')
+        ('spark.driver.executor.memory', '50g')
+        ('spark.executor.cores', '5')
+        ])
 
 # Create a new spark Session
 spark.sparkContext.stop()
