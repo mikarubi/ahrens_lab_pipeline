@@ -15,17 +15,17 @@ file_output = os.path.join(dir_output, 'prepro.output')
 
 #%%
 
-# Update the initial configuration
+# Get spark context
 from pyspark.sql.session import SparkSession
 spark = SparkSession.builder.getOrCreate()
 
-conf = spark.sparkContext._conf.getAll()
-conf.append(('spark.default.parallelism', 100000)) # a very large number
-conf = spark.sparkContext._conf.setAll(conf)
+# conf = spark.sparkContext._conf.getAll()
+# conf.append(('spark.default.parallelism', 100000)) # a very large number
+# conf = spark.sparkContext._conf.setAll(conf)
 
-# Create a new spark Session
-spark.sparkContext.stop()
-spark = SparkSession.builder.config(conf=conf).getOrCreate()
+# # Create a new spark Session
+# spark.sparkContext.stop()
+# spark = SparkSession.builder.config(conf=conf).getOrCreate()
 sc = spark.sparkContext
 
 with open(file_output, 'w') as fh:

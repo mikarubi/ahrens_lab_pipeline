@@ -84,6 +84,7 @@ run([
      os.path.join(spark_path,'spark-submit'),
      '--master', url_master,
      '--properties-file', spark_conf,
+     '--conf', 'spark.default.parallelism=%d'%(60 * int(n_workers)),
      os.path.join(file_path, 'voluseg_submit.py'),
      dir_output])
 
