@@ -83,10 +83,13 @@ while 1:
 run([
      os.path.join(spark_path,'spark-submit'),
      '--master', url_master,
-     '--properties-file', spark_conf,
      '--conf', 'spark.default.parallelism=%d'%(60 * int(n_workers)),
      os.path.join(file_path, 'voluseg_submit.py'),
      dir_output])
+# NB: 60 = 2 * (spark.executor.cores).
+# spark.executor.cores=30 is defined in spark_properties.conf
+# the above line implies that every worker node will run 30 cores.
+# therefore, (60 * int(n_workers)) implies that each core has two tasks
 
 # terminate jobs
 run(['bkill','-J',name_workers])

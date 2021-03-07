@@ -3,14 +3,12 @@ import os
 import pprint
 import voluseg
 
-
 ### set these parameters ###
-dir_input = '/nrs/ahrens/EnYang/Data_dm11/light_sheet/whole_brain/20190121/fish1-gain_20190121_191737'
-dir_output = '/groups/ahrens/ahrenslab/mika/en/testfish'
+dir_input = '/path/to/raw/data'
+dir_output = '/path/to/segmented/data'
 channel_file = os.path.join(dir_input,'ch0.xml')
 stack_file = os.path.join(dir_input,'Stack_frequency.txt')
 ### end set these parameters ###
-
 
 # get default parameters and set directories
 parameters0 = voluseg.parameter_dictionary()
