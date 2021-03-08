@@ -13,10 +13,10 @@ if len(sys.argv) < 3:
 n_workers = sys.argv[1]
 dir_output = sys.argv[2]
 if len(sys.argv) < 4:
-    print('Setting a default time-limit of 8 hours.')
     n_hours = '8'
 else:
     n_hours = sys.argv[3]
+print('Setting a runtime limit of %s hours.'%(n_hours))
 
 #%%
 
@@ -89,7 +89,7 @@ run([
      os.path.join(spark_path,'spark-submit'),
      '--master', url_master,
      '--properties-file', spark_conf,
-     '--conf', 'spark.default.parallelism=%d'%(30 * int(n_workers)),
+     '--conf', 'spark.default.parallelism=%d'%(60 * int(n_workers)),
      os.path.join(file_path, 'voluseg_submit.py'),
      dir_output])
 # NB: 60 = 2 * (spark.executor.cores).
