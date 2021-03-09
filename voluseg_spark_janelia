@@ -8,7 +8,7 @@ import datetime
 from subprocess import run, PIPE
 
 if len(sys.argv) < 3:
-    sys.exit('Usage: voluseg_spark_janelia n_workers dir_output [n_hours] [n_tasks]')
+    sys.exit('Usage: voluseg_spark_janelia n_nodes dir_output [n_hours] [n_tasks]')
 
 n_workers = int(sys.argv[1])
 dir_output = sys.argv[2]
