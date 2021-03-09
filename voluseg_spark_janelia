@@ -8,15 +8,20 @@ import datetime
 from subprocess import run, PIPE
 
 if len(sys.argv) < 3:
-    sys.exit('Usage: voluseg_spark_janelia n_workers dir_output [n_hours]')
+    sys.exit('Usage: voluseg_spark_janelia n_workers dir_output [n_hours] [n_tasks]')
 
-n_workers = sys.argv[1]
+n_workers = int(sys.argv[1])
 dir_output = sys.argv[2]
 if len(sys.argv) < 4:
-    n_hours = '8'
+    n_hours = 8
 else:
-    n_hours = sys.argv[3]
-print('Setting a runtime limit of %s hours.'%(n_hours))
+    n_hours = int(sys.argv[3])
+if len(sys.argv) < 5:
+    n_tasks = 2:
+else:
+    n_tasks = int(sys.argv[4])
+print('Setting a runtime limit of %d hours.'%(n_hours))
+print('Setting each executor to have %d tasks.'%(n_tasks))
 
 #%%
 
@@ -40,11 +45,11 @@ os.environ['SPARK_WORKER_DIR'] = '/scratch/%s/%s'%(name_user,name_job)
 os.environ['SPARK_LOCAL_DIRS'] = '/scratch/%s/%s'%(name_user,name_job)
 
 name_master = 'master_%s'%(name_job)
-name_workers = 'worker_%s[1-%s]'%(name_job,n_workers)
+name_workers = 'worker_%s[1-%d]'%(name_job,n_workers)
 
 # launch master
 launch_master = run([
-    'bsub','-W%s:00'%(n_hours),
+    'bsub','-W%d:00'%(n_hours),
     '-J',name_master,'-n1',
     spark_class,deploy_master,
     '--properties-file',spark_conf])
@@ -65,7 +70,7 @@ while 1:
 
 # launch workers
 launch_workers = run([
-    'bsub','-W%s:00'%(n_hours),
+    'bsub','-W%d:00'%(n_hours),
     '-J',name_workers,'-n32',
     spark_class,deploy_workers,
     '--properties-file',spark_conf,
@@ -89,7 +94,7 @@ run([
      os.path.join(spark_path,'spark-submit'),
      '--master', url_master,
      '--properties-file', spark_conf,
-     '--conf', 'spark.default.parallelism=%d'%(60 * int(n_workers)),
+     '--conf', 'spark.default.parallelism=%d'%(30 * n_workers * n_tasks),
      os.path.join(file_path, 'voluseg_submit.py'),
      dir_output])
 # NB: 60 = 2 * (spark.executor.cores).
