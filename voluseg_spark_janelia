@@ -96,7 +96,7 @@ run([
      '--properties-file', spark_conf,
      '--conf', 'spark.default.parallelism=%d'%(30 * n_workers * n_tasks),
      os.path.join(file_path, 'voluseg_submit.py'),
-     dir_output])
+     dir_output, name_workers])
 # NB: 60 = 2 * (spark.executor.cores).
 # spark.executor.cores=30 is defined in spark_properties.conf
 # the above line implies that every worker node will run 30 cores.

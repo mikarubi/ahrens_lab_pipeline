@@ -50,6 +50,12 @@ voluseg.step4_detect_cells(parameters)
 with open(file_output, 'a') as fh:
     fh.write('step4_detect_cells: %.1f seconds\n'%(time.time() - tic))
 
+# shut down spark if not parallel clean
+if not parameters['parallel_clean']:
+    from subprocess import run
+    name_workers = sys.argv[2]
+    run(['bkill','-J',name_workers])
+
 tic = time.time()
 voluseg.step5_clean_cells(parameters)
 with open(file_output, 'a') as fh:
