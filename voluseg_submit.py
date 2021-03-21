@@ -31,19 +31,19 @@ with open(file_output, 'a') as fh:
     pprint.pprint(parameters, fh)
 
 tic = time.time()
-voluseg.step1_process_images(parameters)
+voluseg.step1_process_volumes(parameters)
 with open(file_output, 'a') as fh:
-    fh.write('step1_process_images: %.1f seconds\n'%(time.time() - tic))
+    fh.write('step1_process_volumes: %.1f seconds\n'%(time.time() - tic))
 
 tic = time.time()
-voluseg.step2_align_images(parameters)
+voluseg.step2_align_volumes(parameters)
 with open(file_output, 'a') as fh:
-    fh.write('step2_align_images: %.1f seconds\n'%(time.time() - tic))
+    fh.write('step2_align_volumes: %.1f seconds\n'%(time.time() - tic))
 
 tic = time.time()
-voluseg.step3_mask_images(parameters)
+voluseg.step3_mask_volumes(parameters)
 with open(file_output, 'a') as fh:
-    fh.write('step3_mask_images: %.1f seconds\n'%(time.time() - tic))
+    fh.write('step3_mask_volumes: %.1f seconds\n'%(time.time() - tic))
 
 tic = time.time()
 voluseg.step4_detect_cells(parameters)
