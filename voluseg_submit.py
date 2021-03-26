@@ -7,23 +7,24 @@ import time
 import pprint
 import voluseg
 
+#%%
+
+# process input
 if len(sys.argv) < 2:
     sys.exit('Usage: voluseg_submit.py [output-directory]')
 
 dir_output = sys.argv[1]
-file_output = os.path.join(dir_output, 'prepro.output')
-
-#%%
 
 # Get spark context
 from pyspark.sql.session import SparkSession
 spark = SparkSession.builder.getOrCreate()
 sc = spark.sparkContext
 
+#%%
+
+file_output = os.path.join(dir_output, 'prepro.output')
 with open(file_output, 'w') as fh:
     pprint.pprint(spark.sparkContext._conf.getAll(), fh)
-
-#%%
 
 # load parameters
 parameters = voluseg.load_parameters(os.path.join(dir_output, 'parameters.pickle'))
