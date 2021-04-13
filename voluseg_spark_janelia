@@ -50,8 +50,7 @@ name_workers = 'worker_%s[1-%d]'%(name_job,n_workers)
 # launch master
 launch_master = run([
     'bsub',
-    '-n','1',
-    '-o','/dev/null',
+    '-n','1', # '-o','/dev/null',
     '-W','%d:00'%(n_hours),
     '-J',name_master,
     spark_class,deploy_master,
@@ -75,8 +74,7 @@ while 1:
 # launch workers
 launch_workers = run([
     'bsub',
-    '-n','32',
-    '-o','/dev/null',
+    '-n','32', # '-o','/dev/null',
     '-W','%d:00'%(n_hours),
     '-J',name_workers,
     spark_class,deploy_workers,
